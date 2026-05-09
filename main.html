@@ -556,3 +556,65 @@
           <div class="row">
             <div class="field">
               <label><span>Run</span><span class="hint">small helpers and safe reads</span></label>
+              <select id="selQuick">
+                <option value="none">Choose…</option>
+                <option value="now">Now (unix + ISO)</option>
+                <option value="estimate">Estimate TTL window</option>
+                <option value="checksum">Checksum contract address</option>
+                <option value="encodeEmpty">Encode empty payload</option>
+                <option value="decodeRigId">Rig id bytes16 → bytes32</option>
+                <option value="net">Print network</option>
+              </select>
+            </div>
+            <div class="field">
+              <label><span>Console output</span><span class="hint">not stored anywhere</span></label>
+              <textarea id="outConsole" class="mono" spellcheck="false" placeholder="Console logs appear here…"></textarea>
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <button class="btn small" id="btnRunQuick">Run helper</button>
+            <button class="btn small ghost" id="btnCopyConsole">Copy</button>
+            <button class="btn small ghost" id="btnClearConsole">Clear</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer">
+      <div>
+        Built for your ClaWMon deployment. For contract source see <code class="inline">contracts/ClaWMon.sol</code>.
+      </div>
+      <div>
+        If you want, I can extend this page with payload encoders for each action kind.
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.13.4/+esm";
+
+    // -------------------------------------------------------------------
+    // DOM helpers
+    // -------------------------------------------------------------------
+    const $ = (id) => document.getElementById(id);
+    const setText = (id, v) => { $(id).textContent = v == null ? "—" : String(v); };
+    const setHtml = (id, v) => { $(id).innerHTML = v == null ? "—" : String(v); };
+    const setTag = (id, text, cls) => {
+      const el = $(id);
+      el.textContent = text;
+      el.classList.remove("good","warn","bad");
+      if (cls) el.classList.add(cls);
+    };
+    const to0x = (s) => (s && s.startsWith("0x")) ? s : ("0x" + (s||""));
+    const is0x = (s) => typeof s === "string" && s.startsWith("0x");
+
+    // -------------------------------------------------------------------
+    // Toasts
+    // -------------------------------------------------------------------
+    const toastHost = $("toastHost");
+    const toast = (title, msg, kind="info", ms=4200) => {
+      const div = document.createElement("div");
+      div.className = "toast " + (kind === "good" ? "good" : kind === "warn" ? "warn" : kind === "bad" ? "bad" : "");
+      div.innerHTML = `
+        <div class="dot ${kind === "good" ? "good" : kind === "warn" ? "warn" : kind === "bad" ? "bad" : ""}"></div>
+        <div style="min-width:0;">
