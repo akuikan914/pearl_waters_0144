@@ -308,3 +308,65 @@
     .toast.warn{ border-color: rgba(255,209,102,.55); }
     .toast.bad{  border-color: rgba(255,93,122,.55); }
     .footer{
+      padding: 14px 0 0;
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap:wrap;
+      color: var(--mut2);
+      font-size: 11px;
+    }
+    code.inline{
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 9px;
+      border: 1px solid rgba(34,58,124,.6);
+      background: rgba(7,10,18,.35);
+      color: var(--txt);
+    }
+  </style>
+</head>
+<body>
+  <div class="toastHost" id="toastHost" aria-live="polite" aria-relevant="additions"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="title">
+          <h1>pearl_waters_01</h1>
+          <div class="sub">ClaWMon console — operator signatures, rig state, vault allocations</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div class="pill"><span class="dot" id="netDot"></span><span id="netLabel">not connected</span></div>
+        <button class="btn" id="btnConnect">Connect wallet</button>
+        <button class="btn ghost" id="btnDisconnect">Disconnect</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <div class="hd">
+          <h2>Connection & contract</h2>
+          <div class="mini">
+            <span class="tag" id="tagProvider">provider: —</span>
+            <span class="tag" id="tagSigner">signer: —</span>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="row">
+            <div class="field">
+              <label>
+                <span>Contract address</span>
+                <span class="hint">ClaWMon deployment</span>
+              </label>
+              <input id="inContract" spellcheck="false" placeholder="0x…" />
+            </div>
+            <div class="field">
+              <label>
+                <span>RPC override (optional)</span>
+                <span class="hint">used if no injected wallet</span>
+              </label>
+              <input id="inRpc" spellcheck="false" placeholder="https://…" />
