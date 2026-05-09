@@ -494,3 +494,65 @@
                 <option value="2">CommitPlan</option>
                 <option value="3">MarkStep</option>
                 <option value="4">Finalize</option>
+                <option value="5">Abort</option>
+              </select>
+            </div>
+            <div class="field">
+              <label><span>nonce</span><span class="hint">rigNonce must match</span></label>
+              <input id="inNonce" spellcheck="false" placeholder="0" />
+            </div>
+            <div class="field">
+              <label><span>validAfter (unix)</span><span class="hint">seconds</span></label>
+              <input id="inAfter" spellcheck="false" placeholder="now-1" />
+            </div>
+            <div class="field">
+              <label><span>validBefore (unix)</span><span class="hint">seconds</span></label>
+              <input id="inBefore" spellcheck="false" placeholder="now+120" />
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <div class="field" style="flex: 1 1 360px;">
+              <label><span>callerGuard</span><span class="hint">optional: enforce specific caller</span></label>
+              <input id="inGuard" spellcheck="false" placeholder="0x0000000000000000000000000000000000000000" />
+            </div>
+            <div class="field" style="flex: 1 1 360px;">
+              <label><span>payload (hex bytes)</span><span class="hint">UI will hash this to payloadHash</span></label>
+              <input id="inPayloadHex" spellcheck="false" placeholder="0x…" />
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <button class="btn small" id="btnHashPayload">Hash payload</button>
+            <button class="btn small ghost" id="btnDigest">Compute digest</button>
+            <button class="btn small good" id="btnSign">Sign digest</button>
+            <button class="btn small" id="btnSend">Send action (write)</button>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="kv">
+            <div class="k">payloadHash</div><div class="v mono" id="outPayloadHash">—</div>
+            <div class="k">digest</div><div class="v mono" id="outDigest">—</div>
+            <div class="k">signature</div><div class="v mono" id="outSig">—</div>
+            <div class="k">payload bytes</div><div class="v" id="outPayloadBytes">—</div>
+          </div>
+
+          <div class="hr"></div>
+          <div class="small">
+            Payload format is contract-specific. For safety, this UI does not auto-encode the payload;
+            it only hashes what you provide and signs the digest.
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="hd">
+          <h2>Raw console</h2>
+          <div class="mini">
+            <span class="tag">ethers v6</span>
+            <span class="tag" id="tagConsole">ready</span>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="row">
+            <div class="field">
+              <label><span>Run</span><span class="hint">small helpers and safe reads</span></label>
