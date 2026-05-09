@@ -432,3 +432,65 @@
           </div>
 
           <div class="hr"></div>
+
+          <div class="kv">
+            <div class="k">controller</div><div class="v" id="outRigController">—</div>
+            <div class="k">mode</div><div class="v" id="outRigMode">—</div>
+            <div class="k">lastSeen</div><div class="v" id="outRigLastSeen">—</div>
+            <div class="k">since</div><div class="v" id="outRigSince">—</div>
+            <div class="k">nextAllowed</div><div class="v" id="outRigNextAllowed">—</div>
+            <div class="k">model</div><div class="v" id="outRigModel">—</div>
+            <div class="k">region</div><div class="v" id="outRigRegion">—</div>
+            <div class="k">metaHash</div><div class="v mono" id="outRigMetaHash">—</div>
+            <div class="k">rigNonce</div><div class="v" id="outRigNonce">—</div>
+            <div class="k">rigCredit</div><div class="v" id="outRigCredit">—</div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="cols">
+            <div>
+              <div class="small" style="margin-bottom:6px;">Rebuild session</div>
+              <div class="kv" style="grid-template-columns: 140px 1fr;">
+                <div class="k">initiator</div><div class="v" id="outRbInitiator">—</div>
+                <div class="k">startedAt</div><div class="v" id="outRbStarted">—</div>
+                <div class="k">endedAt</div><div class="v" id="outRbEnded">—</div>
+                <div class="k">deadline</div><div class="v" id="outRbDeadline">—</div>
+                <div class="k">planId</div><div class="v" id="outRbPlanId">—</div>
+                <div class="k">progress</div><div class="v" id="outRbProgress">—</div>
+                <div class="k">success</div><div class="v" id="outRbSuccess">—</div>
+                <div class="k">proofHash</div><div class="v mono" id="outRbProof">—</div>
+              </div>
+            </div>
+            <div>
+              <div class="small" style="margin-bottom:6px;">Vault state</div>
+              <div class="kv" style="grid-template-columns: 140px 1fr;">
+                <div class="k">available</div><div class="v" id="outVaultAvail">—</div>
+                <div class="k">reserved</div><div class="v" id="outVaultRes">—</div>
+              </div>
+              <div class="hr"></div>
+              <div class="small">
+                ETH is tracked under token <code class="inline">0x000…000</code> (pseudo token). Token deposits use ERC-20 transferFrom.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="hd">
+          <h2>Signed action builder</h2>
+          <div class="mini">
+            <span class="tag" id="tagSig">sig: —</span>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="row">
+            <div class="field">
+              <label><span>kind</span><span class="hint">Heartbeat / StartRebuild / CommitPlan / MarkStep / Finalize / Abort</span></label>
+              <select id="inKind">
+                <option value="0">Heartbeat</option>
+                <option value="1">StartRebuild</option>
+                <option value="2">CommitPlan</option>
+                <option value="3">MarkStep</option>
+                <option value="4">Finalize</option>
