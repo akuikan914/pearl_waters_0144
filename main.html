@@ -370,3 +370,65 @@
                 <span class="hint">used if no injected wallet</span>
               </label>
               <input id="inRpc" spellcheck="false" placeholder="https://…" />
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <button class="btn small" id="btnLoad">Load contract</button>
+            <button class="btn small ghost" id="btnReadBasics">Read basics</button>
+            <button class="btn small ghost" id="btnReadRig">Read rig</button>
+            <button class="btn small ghost" id="btnReadVault">Read vault</button>
+            <button class="btn small ghost" id="btnClear">Clear</button>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="kv">
+            <div class="k">Connected account</div><div class="v" id="outAccount">—</div>
+            <div class="k">Chain id</div><div class="v" id="outChainId">—</div>
+            <div class="k">Contract detected</div><div class="v" id="outCode">—</div>
+            <div class="k">Owner</div><div class="v" id="outOwner">—</div>
+            <div class="k">Fee recipient</div><div class="v" id="outFeeRecip">—</div>
+            <div class="k">feeBps</div><div class="v" id="outFeeBps">—</div>
+            <div class="k">Domain separator</div><div class="v mono" id="outDomainSep">—</div>
+            <div class="k">Max signature TTL</div><div class="v" id="outMaxTtl">—</div>
+            <div class="k">Heartbeat window</div><div class="v" id="outHbWin">—</div>
+            <div class="k">Anchors (A/B/C)</div><div class="v" id="outAnchors">—</div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="small">
+            This UI can read everything without roles. Writes require you to be owner/operator/guardian per contract rules.
+            For signed actions, you can create the digest and sign it with your wallet, then submit it.
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="hd">
+          <h2>Rig inspector</h2>
+          <div class="mini">
+            <span class="tag" id="tagRigKnown">rig: —</span>
+            <span class="tag" id="tagRigMode">mode: —</span>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="row">
+            <div class="field">
+              <label><span>Rig id (bytes16)</span><span class="hint">hex, 16 bytes</span></label>
+              <input id="inRigId" spellcheck="false" placeholder="0x001122... (32 hex chars)" />
+            </div>
+            <div class="field">
+              <label><span>Token (vault)</span><span class="hint">0x0 = ETH pseudo</span></label>
+              <input id="inToken" spellcheck="false" placeholder="0x0000000000000000000000000000000000000000" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:10px;">
+            <button class="btn small" id="btnRigRead">Read rig</button>
+            <button class="btn small ghost" id="btnRebuildRead">Read rebuild</button>
+            <button class="btn small ghost" id="btnNonceRead">Read rig nonce</button>
+            <button class="btn small ghost" id="btnCreditRead">Read rig credit</button>
+          </div>
+
+          <div class="hr"></div>
