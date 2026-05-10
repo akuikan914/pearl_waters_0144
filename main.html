@@ -866,3 +866,65 @@
           contract.maxSigTtl(),
           contract.minHeartbeat(),
           contract.maxHeartbeat(),
+          contract.ADDRESS_A(),
+          contract.ADDRESS_B(),
+          contract.ADDRESS_C(),
+        ]);
+        setText("outOwner", owner);
+        setText("outFeeRecip", feeR);
+        setText("outFeeBps", String(feeBps));
+        setText("outDomainSep", ds);
+        setText("outMaxTtl", String(ttl) + " sec");
+        setText("outHbWin", String(hbMin) + " … " + String(hbMax) + " sec");
+        setText("outAnchors", a + " / " + b + " / " + c);
+        toast("Read", "Basics updated", "good");
+      }catch(e){
+        toast("Read", "Basics failed: " + shortErr(e), "bad");
+      }
+    }
+
+    function bytes16FromInput(){
+      const t = $("inRigId").value.trim();
+      if (!t) throw new Error("Rig id is empty.");
+      const hex = t.toLowerCase().startsWith("0x") ? t : ("0x" + t);
+      const bytes = ethers.getBytes(hex);
+      if (bytes.length !== 16) throw new Error("Rig id must be exactly 16 bytes.");
+      return hex;
+    }
+
+    async function readRigAll(){
+      try{
+        if (!contract) await loadContract();
+        if (!contract) return;
+        const rigId = bytes16FromInput();
+        const r = await contract.rig(rigId);
+        setTag("tagRigKnown", "rig: ok", "good");
+        setRigModeTag(Number(r.mode));
+        setText("outRigController", r.controller);
+        setText("outRigMode", modeName(Number(r.mode)) + " (" + Number(r.mode) + ")");
+        setText("outRigLastSeen", fmtTs(Number(r.lastSeen)));
+        setText("outRigSince", fmtTs(Number(r.since)));
+        setText("outRigNextAllowed", fmtTs(Number(r.nextAllowed)));
+        setText("outRigModel", bytes16ToShort(r.model));
+        setText("outRigRegion", bytes16ToShort(r.region));
+        setText("outRigMetaHash", r.metaHash);
+        await readRigNonce();
+        toast("Read", "Rig updated", "good");
+      }catch(e){
+        setTag("tagRigKnown", "rig: unknown", "warn");
+        setTag("tagRigMode", "mode: —");
+        toast("Read", "Rig failed: " + shortErr(e), "bad");
+      }
+    }
+
+    async function readRigNonce(){
+      try{
+        if (!contract) await loadContract();
+        const rigId = bytes16FromInput();
+        const n = await contract.rigNonce(rigId);
+        setText("outRigNonce", String(n));
+        $("inNonce").value = String(n);
+        return n;
+      }catch(e){
+        toast("Read", "Nonce failed: " + shortErr(e), "bad");
+      }
