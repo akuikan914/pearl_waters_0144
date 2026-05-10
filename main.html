@@ -1052,3 +1052,65 @@
       }catch(e){
         setTag("tagSig", "sig: not signed", "warn");
         toast("Sign", "Failed: " + shortErr(e), "bad");
+      }
+    }
+
+    async function sendAction(){
+      try{
+        if (!contract) await loadContract();
+        if (!contract) return;
+        if (!signer) throw new Error("Connect wallet first to send transactions.");
+
+        const rigId = bytes16FromInput();
+        const kind = parseU32($("inKind").value);
+        const nonce = parseU32($("inNonce").value);
+        const validAfter = parseU48($("inAfter").value);
+        const validBefore = parseU48($("inBefore").value);
+        const guard = safeAddress($("inGuard").value.trim());
+        const bytes = payloadBytes();
+        const payloadHash = ethers.keccak256(bytes);
+        const sig = $("outSig").textContent.trim();
+        if (!sig || sig === "—") throw new Error("Sign digest first.");
+
+        const a = { rigId, nonce, kind, validAfter, validBefore, payloadHash, callerGuard: guard };
+        const c = contract.connect(signer);
+
+        const sigBytes = ethers.getBytes(sig);
+        let tx;
+        switch (kind) {
+          case 0: tx = await c.heartbeat(a, sigBytes, bytes); break;
+          case 1: tx = await c.startRebuild(a, sigBytes, bytes); break;
+          case 2: tx = await c.commitPlan(a, sigBytes, bytes); break;
+          case 3: tx = await c.markStep(a, sigBytes, bytes); break;
+          case 4: tx = await c.finalizeRebuild(a, sigBytes, bytes); break;
+          case 5: tx = await c.abortRebuild(a, sigBytes, bytes); break;
+          default: throw new Error("Unknown kind: " + kind);
+        }
+
+        toast("Tx sent", tx.hash, "good", 6000);
+        setTag("tagConsole", "tx pending", "warn");
+
+        const rcpt = await tx.wait();
+        toast("Tx confirmed", "status=" + rcpt.status + " block=" + rcpt.blockNumber, rcpt.status === 1 ? "good" : "bad", 6000);
+        setTag("tagConsole", rcpt.status === 1 ? "confirmed" : "reverted", rcpt.status === 1 ? "good" : "bad");
+
+        // refresh rig+nonce after a write
+        await readRigAll();
+      }catch(e){
+        toast("Send", "Failed: " + shortErr(e), "bad", 7000);
+        setTag("tagConsole", "error", "bad");
+      }
+    }
+
+    // -------------------------------------------------------------------
+    // Console quick helpers
+    // -------------------------------------------------------------------
+    function logc(line){
+      const ta = $("outConsole");
+      ta.value = (ta.value ? (ta.value + "\n") : "") + line;
+      ta.scrollTop = ta.scrollHeight;
+    }
+
+    async function runQuick(){
+      const which = $("selQuick").value;
+      try{
