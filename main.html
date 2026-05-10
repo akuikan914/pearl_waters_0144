@@ -742,3 +742,65 @@
       }
     }
 
+    function resetProvider(){
+      provider = null;
+      signer = null;
+      contract = null;
+      currentNetwork = null;
+      renderConnection();
+      clearOutputs();
+    }
+
+    // -------------------------------------------------------------------
+    // Connection
+    // -------------------------------------------------------------------
+    async function connectWallet(){
+      try{
+        if (!injected) {
+          toast("Wallet", "No injected wallet found. Enter an RPC override to read via RPC.", "warn");
+          await ensureProvider();
+          await refreshNetwork();
+          renderConnection();
+          return;
+        }
+        await injected.request({ method: "eth_requestAccounts" });
+        await ensureProvider();
+        signer = await provider.getSigner();
+        await refreshNetwork();
+        toast("Wallet", "Connected", "good");
+        renderConnection();
+      }catch(e){
+        toast("Wallet", "Connect failed: " + shortErr(e), "bad");
+      }
+    }
+
+    function disconnectWallet(){
+      signer = null;
+      if (!injected) provider = null;
+      contract = null;
+      renderConnection();
+      toast("Wallet", "Disconnected (local only).", "warn");
+    }
+
+    async function ensureProvider(){
+      if (provider) return provider;
+      const rpc = $("inRpc").value.trim();
+      if (injected) {
+        provider = new ethers.BrowserProvider(injected, "any");
+        return provider;
+      }
+      if (!rpc) throw new Error("No injected wallet and no RPC override.");
+      provider = new ethers.JsonRpcProvider(rpc);
+      return provider;
+    }
+
+    async function refreshNetwork(){
+      if (!provider) return;
+      try{
+        currentNetwork = await provider.getNetwork();
+        setText("outChainId", String(currentNetwork.chainId));
+        setNet(currentNetwork.name + " (" + currentNetwork.chainId + ")", "good");
+      }catch(e){
+        setNet("network unknown", "warn");
+      }
+    }
