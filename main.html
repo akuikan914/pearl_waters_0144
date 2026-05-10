@@ -804,3 +804,65 @@
         setNet("network unknown", "warn");
       }
     }
+
+    function setNet(label, cls){
+      $("netLabel").textContent = label;
+      const dot = $("netDot");
+      dot.classList.remove("good","warn","bad");
+      dot.classList.add(cls || "warn");
+    }
+
+    function renderConnection(){
+      setTag("tagProvider", provider ? "provider: ready" : (injected ? "provider: injected" : "provider: none"), provider ? "good" : injected ? "warn" : "warn");
+      setTag("tagSigner", signer ? "signer: ready" : "signer: —", signer ? "good" : "warn");
+      setText("outAccount", signer ? "(loading…)" : "—");
+      (async () => {
+        try{
+          if (signer) setText("outAccount", await signer.getAddress());
+          else setText("outAccount", "—");
+        }catch{ setText("outAccount", "—"); }
+      })();
+    }
+
+    // -------------------------------------------------------------------
+    // Contract
+    // -------------------------------------------------------------------
+    async function loadContract(){
+      try{
+        await ensureProvider();
+        await refreshNetwork();
+        const addr = $("inContract").value.trim();
+        if (!addr) throw new Error("Contract address is empty.");
+        const checksum = ethers.getAddress(addr);
+        $("inContract").value = checksum;
+        localStorage.setItem("pearl_waters_01.contract", checksum);
+
+        const code = await provider.getCode(checksum);
+        setText("outCode", code && code !== "0x" ? ("yes (" + Math.round(code.length/2) + " bytes)") : "no");
+        if (!code || code === "0x") {
+          contract = null;
+          toast("Contract", "No bytecode at address.", "bad");
+          return;
+        }
+
+        contract = new ethers.Contract(checksum, ABI, signer ?? provider);
+        toast("Contract", "Loaded " + checksum, "good");
+        setTag("tagConsole", "loaded", "good");
+      }catch(e){
+        toast("Contract", "Load failed: " + shortErr(e), "bad");
+        setTag("tagConsole", "error", "bad");
+      }
+    }
+
+    async function readBasics(){
+      try{
+        if (!contract) await loadContract();
+        if (!contract) return;
+        const [owner, feeR, feeBps, ds, ttl, hbMin, hbMax, a, b, c] = await Promise.all([
+          contract.owner(),
+          contract.feeRecipient(),
+          contract.feeBps(),
+          contract.domainSeparator(),
+          contract.maxSigTtl(),
+          contract.minHeartbeat(),
+          contract.maxHeartbeat(),
