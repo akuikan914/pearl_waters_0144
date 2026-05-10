@@ -680,3 +680,65 @@
     renderConnection();
 
     function boot(){
+      injected = (window.ethereum && window.ethereum.request) ? window.ethereum : null;
+      setTag("tagProvider", injected ? "provider: injected" : "provider: none", injected ? "good" : "warn");
+      setTag("tagSigner", "signer: —");
+      setNet("not connected", "warn");
+
+      const remembered = localStorage.getItem("pearl_waters_01.contract");
+      if (remembered) $("inContract").value = remembered;
+      const rememberedRpc = localStorage.getItem("pearl_waters_01.rpc");
+      if (rememberedRpc) $("inRpc").value = rememberedRpc;
+      const rememberedRig = localStorage.getItem("pearl_waters_01.rigId");
+      if (rememberedRig) $("inRigId").value = rememberedRig;
+      const rememberedToken = localStorage.getItem("pearl_waters_01.token");
+      if (rememberedToken) $("inToken").value = rememberedToken;
+
+      const now = Math.floor(Date.now()/1000);
+      $("inAfter").value = String(now - 1);
+      $("inBefore").value = String(now + 120);
+      $("inNonce").value = "0";
+      $("inGuard").value = ethers.ZeroAddress;
+      $("inToken").value = $("inToken").value || ethers.ZeroAddress;
+    }
+
+    function wire(){
+      $("btnConnect").addEventListener("click", connectWallet);
+      $("btnDisconnect").addEventListener("click", disconnectWallet);
+      $("btnLoad").addEventListener("click", loadContract);
+      $("btnReadBasics").addEventListener("click", readBasics);
+      $("btnReadRig").addEventListener("click", readRigAll);
+      $("btnReadVault").addEventListener("click", readVaultAll);
+      $("btnClear").addEventListener("click", clearOutputs);
+
+      $("btnRigRead").addEventListener("click", readRigAll);
+      $("btnRebuildRead").addEventListener("click", readRebuild);
+      $("btnNonceRead").addEventListener("click", readRigNonce);
+      $("btnCreditRead").addEventListener("click", readRigCredit);
+
+      $("btnHashPayload").addEventListener("click", hashPayload);
+      $("btnDigest").addEventListener("click", computeDigest);
+      $("btnSign").addEventListener("click", signDigest);
+      $("btnSend").addEventListener("click", sendAction);
+
+      $("btnRunQuick").addEventListener("click", runQuick);
+      $("btnCopyConsole").addEventListener("click", copyConsole);
+      $("btnClearConsole").addEventListener("click", () => $("outConsole").value = "");
+
+      $("inContract").addEventListener("change", () => localStorage.setItem("pearl_waters_01.contract", $("inContract").value.trim()));
+      $("inRpc").addEventListener("change", () => localStorage.setItem("pearl_waters_01.rpc", $("inRpc").value.trim()));
+      $("inRigId").addEventListener("change", () => localStorage.setItem("pearl_waters_01.rigId", $("inRigId").value.trim()));
+      $("inToken").addEventListener("change", () => localStorage.setItem("pearl_waters_01.token", $("inToken").value.trim()));
+
+      if (injected) {
+        injected.on?.("chainChanged", () => {
+          toast("Network", "Chain changed. Reloading provider.", "warn");
+          resetProvider();
+        });
+        injected.on?.("accountsChanged", () => {
+          toast("Wallet", "Account changed. Reloading signer.", "warn");
+          resetProvider();
+        });
+      }
+    }
+
