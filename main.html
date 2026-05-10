@@ -928,3 +928,65 @@
       }catch(e){
         toast("Read", "Nonce failed: " + shortErr(e), "bad");
       }
+    }
+
+    async function readRigCredit(){
+      try{
+        if (!contract) await loadContract();
+        const rigId = bytes16FromInput();
+        const token = safeAddress($("inToken").value.trim() || ethers.ZeroAddress);
+        const credit = await contract.rigCredit(token, rigId);
+        setText("outRigCredit", formatUnits(credit, 18) + " (raw " + credit + ")");
+      }catch(e){
+        toast("Read", "Credit failed: " + shortErr(e), "bad");
+      }
+    }
+
+    async function readRebuild(){
+      try{
+        if (!contract) await loadContract();
+        const rigId = bytes16FromInput();
+        const rb = await contract.rebuild(rigId);
+        setText("outRbInitiator", rb.initiator);
+        setText("outRbStarted", fmtTs(Number(rb.startedAt)));
+        setText("outRbEnded", fmtTs(Number(rb.endedAt)));
+        setText("outRbDeadline", fmtTs(Number(rb.deadline)));
+        setText("outRbPlanId", String(rb.planId));
+        setText("outRbProgress", String(rb.progress));
+        setText("outRbSuccess", String(rb.success));
+        setText("outRbProof", rb.proofHash);
+        toast("Read", "Rebuild updated", "good");
+      }catch(e){
+        toast("Read", "Rebuild failed: " + shortErr(e), "bad");
+      }
+    }
+
+    async function readVaultAll(){
+      try{
+        if (!contract) await loadContract();
+        const token = safeAddress($("inToken").value.trim() || ethers.ZeroAddress);
+        const [avail, res] = await contract.vault(token);
+        setText("outVaultAvail", String(avail));
+        setText("outVaultRes", String(res));
+        toast("Read", "Vault updated", "good");
+      }catch(e){
+        toast("Read", "Vault failed: " + shortErr(e), "bad");
+      }
+    }
+
+    // -------------------------------------------------------------------
+    // Signed action helpers
+    // -------------------------------------------------------------------
+    function parseU48(v){
+      const n = Number(v);
+      if (!Number.isFinite(n) || n < 0) throw new Error("Invalid number: " + v);
+      if (n > 2**48 - 1) throw new Error("Too large for uint48: " + v);
+      return n;
+    }
+    function parseU32(v){
+      const n = Number(v);
+      if (!Number.isFinite(n) || n < 0) throw new Error("Invalid number: " + v);
+      if (n > 2**32 - 1) throw new Error("Too large for uint32: " + v);
+      return n;
+    }
+
