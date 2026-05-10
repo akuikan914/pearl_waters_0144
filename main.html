@@ -1176,3 +1176,55 @@
     }
 
     // -------------------------------------------------------------------
+    // Formatting
+    // -------------------------------------------------------------------
+    function fmtTs(u){
+      if (!u) return "0";
+      try {
+        const d = new Date(Number(u) * 1000);
+        return u + " (" + d.toISOString().replace("T"," ").replace("Z","Z") + ")";
+      } catch {
+        return String(u);
+      }
+    }
+
+    function bytes16ToShort(b){
+      try{
+        const hex = ethers.hexlify(b);
+        return hex.slice(0, 10) + "…" + hex.slice(-6);
+      }catch{
+        return String(b);
+      }
+    }
+
+    function modeName(m){
+      switch(m){
+        case 0: return "Idle";
+        case 1: return "Live";
+        case 2: return "Degraded";
+        case 3: return "Down";
+        case 4: return "Rebuilding";
+        case 5: return "Frozen";
+        default: return "Unknown";
+      }
+    }
+
+    function setRigModeTag(m){
+      const name = modeName(m);
+      if (m === 1) setTag("tagRigMode", "mode: " + name, "good");
+      else if (m === 0 || m === 2) setTag("tagRigMode", "mode: " + name, "warn");
+      else if (m === 3 || m === 5) setTag("tagRigMode", "mode: " + name, "bad");
+      else setTag("tagRigMode", "mode: " + name, "warn");
+    }
+
+    function shortErr(e){
+      const m = e?.shortMessage || e?.reason || e?.message || String(e);
+      return m.length > 220 ? m.slice(0,220) + "…" : m;
+    }
+
+    function formatUnits(v, d){
+      try { return ethers.formatUnits(v, d); } catch { return String(v); }
+    }
+  </script>
+</body>
+</html>
