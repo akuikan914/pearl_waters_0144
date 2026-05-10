@@ -990,3 +990,65 @@
       return n;
     }
 
+    function safeAddress(addr){
+      if (!addr) return ethers.ZeroAddress;
+      if (addr === "0x0") return ethers.ZeroAddress;
+      try { return ethers.getAddress(addr); } catch { return ethers.ZeroAddress; }
+    }
+
+    function payloadBytes(){
+      const hex = $("inPayloadHex").value.trim();
+      if (!hex) return new Uint8Array([]);
+      if (!is0x(hex)) throw new Error("Payload must be 0x-prefixed hex.");
+      return ethers.getBytes(hex);
+    }
+
+    function hashPayload(){
+      try{
+        const bytes = payloadBytes();
+        const h = ethers.keccak256(bytes);
+        setText("outPayloadHash", h);
+        setText("outPayloadBytes", bytes.length + " bytes");
+        toast("Hash", "payloadHash computed", "good");
+      }catch(e){
+        toast("Hash", "Failed: " + shortErr(e), "bad");
+      }
+    }
+
+    async function computeDigest(){
+      try{
+        if (!contract) await loadContract();
+        if (!contract) return;
+        const rigId = bytes16FromInput();
+        const kind = parseU32($("inKind").value);
+        const nonce = parseU32($("inNonce").value);
+        const validAfter = parseU48($("inAfter").value);
+        const validBefore = parseU48($("inBefore").value);
+        const guard = safeAddress($("inGuard").value.trim());
+        const bytes = payloadBytes();
+        const payloadHash = ethers.keccak256(bytes);
+        setText("outPayloadHash", payloadHash);
+        setText("outPayloadBytes", bytes.length + " bytes");
+        const a = { rigId, nonce, kind, validAfter, validBefore, payloadHash, callerGuard: guard };
+        const d = await contract.actionDigest(a);
+        setText("outDigest", d);
+        setTag("tagSig", "sig: digest ready", "good");
+        toast("Digest", "Computed digest", "good");
+      }catch(e){
+        setTag("tagSig", "sig: error", "bad");
+        toast("Digest", "Failed: " + shortErr(e), "bad");
+      }
+    }
+
+    async function signDigest(){
+      try{
+        if (!signer) throw new Error("No signer. Connect wallet first.");
+        const d = $("outDigest").textContent.trim();
+        if (!d || d === "—") throw new Error("Compute digest first.");
+        const sig = await signer.signMessage(ethers.getBytes(d));
+        setText("outSig", sig);
+        setTag("tagSig", "sig: signed", "good");
+        toast("Sign", "Signature ready", "good");
+      }catch(e){
+        setTag("tagSig", "sig: not signed", "warn");
+        toast("Sign", "Failed: " + shortErr(e), "bad");
