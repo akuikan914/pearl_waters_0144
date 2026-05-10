@@ -1114,3 +1114,65 @@
     async function runQuick(){
       const which = $("selQuick").value;
       try{
+        if (which === "none") return;
+        if (which === "now") {
+          const now = Math.floor(Date.now()/1000);
+          logc("unix=" + now + " iso=" + new Date().toISOString());
+          return;
+        }
+        if (which === "estimate") {
+          if (!contract) await loadContract();
+          const ttl = await contract.maxSigTtl();
+          const after = parseU48($("inAfter").value);
+          const before = parseU48($("inBefore").value);
+          logc("ttlAllowed=" + ttl + " seconds");
+          logc("window=" + (before-after) + " seconds");
+          return;
+        }
+        if (which === "checksum") {
+          const a = $("inContract").value.trim();
+          logc("checksum=" + ethers.getAddress(a));
+          return;
+        }
+        if (which === "encodeEmpty") {
+          const b = ethers.hexlify(new Uint8Array([]));
+          logc("payload=" + b + " bytes=0 hash=" + ethers.keccak256(b));
+          return;
+        }
+        if (which === "decodeRigId") {
+          const rigId = bytes16FromInput();
+          const b = ethers.getBytes(rigId);
+          const b32 = ethers.hexlify(ethers.zeroPadValue(rigId, 32));
+          logc("rigId=" + rigId + " bytes=" + b.length + " padded32=" + b32);
+          return;
+        }
+        if (which === "net") {
+          await ensureProvider();
+          const net = await provider.getNetwork();
+          logc("network=" + net.name + " chainId=" + net.chainId);
+          return;
+        }
+      } catch(e) {
+        toast("Quick helper", "Failed: " + shortErr(e), "bad");
+      }
+    }
+
+    function copyConsole(){
+      const v = $("outConsole").value;
+      navigator.clipboard?.writeText(v);
+      toast("Clipboard", "Console copied", "good");
+    }
+
+    function clearOutputs(){
+      [
+        "outOwner","outFeeRecip","outFeeBps","outDomainSep","outMaxTtl","outHbWin","outAnchors","outCode",
+        "outRigController","outRigMode","outRigLastSeen","outRigSince","outRigNextAllowed","outRigModel","outRigRegion","outRigMetaHash",
+        "outRigNonce","outRigCredit","outRbInitiator","outRbStarted","outRbEnded","outRbDeadline","outRbPlanId","outRbProgress","outRbSuccess","outRbProof",
+        "outVaultAvail","outVaultRes","outPayloadHash","outDigest","outSig","outPayloadBytes"
+      ].forEach(id => setText(id, "—"));
+      setTag("tagRigKnown","rig: —");
+      setTag("tagRigMode","mode: —");
+      setTag("tagSig","sig: —");
+    }
+
+    // -------------------------------------------------------------------
