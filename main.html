@@ -618,3 +618,65 @@
       div.innerHTML = `
         <div class="dot ${kind === "good" ? "good" : kind === "warn" ? "warn" : kind === "bad" ? "bad" : ""}"></div>
         <div style="min-width:0;">
+          <p class="t">${escapeHtml(title)}</p>
+          <p class="m">${escapeHtml(msg)}</p>
+        </div>
+        <button class="x" aria-label="Dismiss">×</button>
+      `;
+      div.querySelector(".x").addEventListener("click", () => div.remove());
+      toastHost.appendChild(div);
+      setTimeout(() => { try{ div.remove(); }catch{} }, ms);
+    };
+
+    const escapeHtml = (s) => String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#39;");
+
+    // -------------------------------------------------------------------
+    // Contract ABI (subset)
+    // -------------------------------------------------------------------
+    const ABI = [
+      "function owner() view returns (address)",
+      "function feeRecipient() view returns (address)",
+      "function feeBps() view returns (uint16)",
+      "function domainSeparator() view returns (bytes32)",
+      "function maxSigTtl() view returns (uint48)",
+      "function minHeartbeat() view returns (uint48)",
+      "function maxHeartbeat() view returns (uint48)",
+      "function ADDRESS_A() view returns (address)",
+      "function ADDRESS_B() view returns (address)",
+      "function ADDRESS_C() view returns (address)",
+      "function rigNonce(bytes16) view returns (uint32)",
+      "function rigCredit(address, bytes16) view returns (uint128)",
+      "function rig(bytes16) view returns (tuple(address controller,uint8 mode,uint48 lastSeen,uint48 since,uint48 nextAllowed,bytes16 model,bytes16 region,bytes32 metaHash))",
+      "function rebuild(bytes16) view returns (tuple(address initiator,uint48 startedAt,uint48 endedAt,uint48 deadline,uint32 planId,uint32 progress,bool success,bytes32 proofHash))",
+      "function vault(address) view returns (uint128 available,uint128 reserved)",
+      "function actionDigest((bytes16 rigId,uint32 nonce,uint8 kind,uint48 validAfter,uint48 validBefore,bytes32 payloadHash,address callerGuard)) view returns (bytes32)",
+      "function heartbeat((bytes16 rigId,uint32 nonce,uint8 kind,uint48 validAfter,uint48 validBefore,bytes32 payloadHash,address callerGuard),bytes operatorSig,bytes payload)",
+      "function startRebuild((bytes16 rigId,uint32 nonce,uint8 kind,uint48 validAfter,uint48 validBefore,bytes32 payloadHash,address callerGuard),bytes operatorSig,bytes payload)",
+      "function commitPlan((bytes16 rigId,uint32 nonce,uint8 kind,uint48 validAfter,uint48 validBefore,bytes32 payloadHash,address callerGuard),bytes operatorSig,bytes payload)",
+      "function markStep((bytes16 rigId,uint32 nonce,uint8 kind,uint48 validAfter,uint48 validBefore,bytes32 payloadHash,address callerGuard),bytes operatorSig,bytes payload)",
+      "function finalizeRebuild((bytes16 rigId,uint32 nonce,uint8 kind,uint48 validAfter,uint48 validBefore,bytes32 payloadHash,address callerGuard),bytes operatorSig,bytes payload)",
+      "function abortRebuild((bytes16 rigId,uint32 nonce,uint8 kind,uint48 validAfter,uint48 validBefore,bytes32 payloadHash,address callerGuard),bytes operatorSig,bytes payload)"
+    ];
+
+    // -------------------------------------------------------------------
+    // State
+    // -------------------------------------------------------------------
+    let injected = null;
+    let provider = null;
+    let signer = null;
+    let contract = null;
+    let currentNetwork = null;
+
+    // -------------------------------------------------------------------
+    // Init
+    // -------------------------------------------------------------------
+    boot();
+    wire();
+    renderConnection();
+
+    function boot(){
